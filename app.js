@@ -9,7 +9,7 @@ const session = require("express-session");   //// USED FOR COOKIES WITH passpor
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");     //COOKIES  AT npmjs.com
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-// const FacebookStrategy = require('passport-facebook').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 // const encrypt = require("mongoose-encryption");              1              //////// to encrypt password
 var md5 = require("md5"); // FOR PASSWORD HASHING (SECURE PASSWORDS)
@@ -46,7 +46,7 @@ userSchema = new mongoose.Schema({
   email: String,
   password: String,
   googleId: String,
-  // facebookId: String,
+  facebookId: String,
   secret: String
 });
 
@@ -89,20 +89,20 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-// passport.use(new FacebookStrategy({
-//     clientID: process.env.APP_ID,
-//     clientSecret: process.env.APP_SECRET,
-//     callbackURL: "http://localhost:3000/auth/facebook/secrets"
-//   },
-//   function(accessToken, refreshToken, profile, cb) {
-//     console.log(profile);
-//     User.findOrCreate({
-//       facebookId: profile.id
-//     }, function(err, user) {
-//       return cb(err, user);
-//     });
-//   }
-// ));
+passport.use(new FacebookStrategy({
+    clientID: process.env.APP_ID,
+    clientSecret: process.env.APP_SECRET,
+    callbackURL: "http://localhost:3000/auth/facebook/secrets"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    console.log(profile);
+    User.findOrCreate({
+      facebookId: profile.id
+    }, function(err, user) {
+      return cb(err, user);
+    });
+  }
+));
 
 
 //////////////////// HOME ROUTE
@@ -132,17 +132,17 @@ app.get('/auth/google/secrets',
 
 
 //////////////////////// FACEBOOK AUTHENTICATION route
-// app.get('/auth/facebook',
-//   passport.authenticate('facebook'));
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
 
-// app.get('/auth/facebook/secrets',
-//   passport.authenticate('facebook', {
-//     failureRedirect: '/login'
-//   }),
-//   function(req, res) {
-//     // Successful authentication, redirect home.
-//     res.redirect('/secrets');
-//   });
+app.get('/auth/facebook/secrets',
+  passport.authenticate('facebook', {
+    failureRedirect: '/login'
+  }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/secrets');
+  });
 
 
 
