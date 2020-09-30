@@ -42,12 +42,14 @@ mongoose.connect("mongodb+srv://admin:Baboin619@cluster0.s7zsg.mongodb.net/userD
 });
 mongoose.set("useCreateIndex", true);
 
+
+
 userSchema = new mongoose.Schema({
   email: String,
   password: String,
   googleId: String,
   facebookId: String,
-  secret: String
+  secret: Array
 });
 
 userSchema.plugin(passportLocalMongoose); // set up userSchema to use passportLocalMongoose as a plugin
@@ -282,7 +284,7 @@ app.get("/submit", function(req,res){
 });
 
 app.post("/submit", function(req,res){
-  const secretsubmit = req.body.secret;
+  //const secretsubmit = req.body.secret;
 
   console.log(req.user._id);
   User.findById(req.user._id, function(err, foundUser){
@@ -290,7 +292,8 @@ app.post("/submit", function(req,res){
       console.log(err);
     } else {
       if(foundUser){
-        foundUser.secret = secretsubmit;
+        //foundUser.secret = secretsubmit;
+        foundUser.secret.push(req.body.secret);
         foundUser.save(function(){
           res.redirect("/secrets");
         });
